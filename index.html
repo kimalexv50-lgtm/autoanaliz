@@ -1,1433 +1,709 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>AutoBid KG — Анализ HeyDealer</title>
+<title>BEREKE KG — AutoBid AI</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f4f6f9;
+    color:#111827;
+}
+
+header{
+    height:70px;
+    background:#0a0f1c;
+    color:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 32px;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:900;
+}
+
+.logo span{
+    color:#3b82f6;
+}
+
+.header-status{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.container{
+    width:min(1200px,94%);
+    margin:35px auto;
+}
+
+.title{
+    margin-bottom:25px;
+}
+
+.title h1{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+.title p{
+    color:#64748b;
+    line-height:1.5;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:22px;
+    box-shadow:0 3px 12px rgba(0,0,0,.04);
+}
+
+.card h2{
+    font-size:18px;
+    margin-bottom:18px;
+}
+
+.upload{
+    border:2px dashed #cbd5e1;
+    border-radius:14px;
+    min-height:210px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px;
+    cursor:pointer;
+    background:#f8fafc;
+}
+
+.upload:hover{
+    border-color:#2563eb;
+}
+
+.upload-icon{
+    font-size:38px;
+    margin-bottom:10px;
+}
+
+.upload strong{
+    font-size:16px;
+}
+
+.upload small{
+    color:#64748b;
+    margin-top:7px;
+}
+
+#preview{
+    max-width:100%;
+    max-height:300px;
+    border-radius:10px;
+    margin-top:15px;
+    display:none;
+}
+
+input[type=file]{
+    display:none;
+}
+
+.or{
+    text-align:center;
+    color:#94a3b8;
+    margin:18px 0;
+    font-size:12px;
+}
+
+.url-input{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    font-size:14px;
+    outline:none;
+}
+
+.url-input:focus{
+    border-color:#2563eb;
+}
+
+.rate-box{
+    margin-top:18px;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    padding:14px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.rate-box small{
+    display:block;
+    color:#64748b;
+    margin-bottom:4px;
+}
+
+.rate{
+    font-weight:900;
+    font-size:18px;
+}
+
+.analyze{
+    width:100%;
+    border:0;
+    border-radius:11px;
+    background:#2563eb;
+    color:white;
+    padding:16px;
+    margin-top:18px;
+    font-size:16px;
+    font-weight:900;
+    cursor:pointer;
+}
+
+.analyze:hover{
+    background:#1d4ed8;
+}
+
+.analyze:disabled{
+    background:#94a3b8;
+    cursor:not-allowed;
+}
+
+.result-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.badge{
+    font-weight:900;
+    font-size:12px;
+    padding:9px 13px;
+    border-radius:8px;
+    background:#eef2f7;
+    color:#64748b;
+}
+
+.hero{
+    background:#0f172a;
+    color:white;
+    border-radius:14px;
+    padding:21px;
+    margin-top:18px;
+}
+
+.hero small{
+    color:#94a3b8;
+}
+
+.hero-price{
+    font-size:35px;
+    font-weight:900;
+    margin-top:5px;
+}
+
+.range{
+    margin-top:9px;
+    color:#cbd5e1;
+    font-size:13px;
+}
+
+.metrics{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+}
+
+.metric{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    padding:14px;
+    border-radius:10px;
+}
+
+.metric small{
+    color:#64748b;
+    display:block;
+    font-size:11px;
+    margin-bottom:6px;
+}
+
+.metric strong{
+    font-size:17px;
+}
+
+.section{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid #e5e7eb;
+}
+
+.section h3{
+    font-size:14px;
+    margin-bottom:9px;
+}
+
+.section p{
+    color:#475569;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.cost{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid #f1f5f9;
+    font-size:13px;
+}
+
+.ai-status{
+    margin-top:17px;
+    padding:13px;
+    border-radius:10px;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    color:#1e40af;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.spinner{
+    display:none;
+    margin:25px auto;
+    width:38px;
+    height:38px;
+    border:4px solid #e5e7eb;
+    border-top-color:#2563eb;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+
+@media(max-width:850px){
+    .grid{
+        grid-template-columns:1fr;
     }
 
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f3f5f8;
-      color: #111827;
+    header{
+        padding:0 17px;
     }
 
-    header {
-      background: #0b1220;
-      color: white;
-      padding: 18px 28px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .metrics{
+        grid-template-columns:1fr;
     }
-
-    .logo {
-      font-size: 22px;
-      font-weight: 900;
-    }
-
-    .logo span {
-      color: #3b82f6;
-    }
-
-    .header-small {
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .container {
-      max-width: 1500px;
-      margin: auto;
-      padding: 24px;
-    }
-
-    .page-title {
-      margin-bottom: 20px;
-    }
-
-    .page-title h1 {
-      font-size: 28px;
-      margin-bottom: 6px;
-    }
-
-    .page-title p {
-      color: #6b7280;
-      font-size: 14px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 20px;
-    }
-
-    .card {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.04);
-    }
-
-    .card h2 {
-      font-size: 18px;
-      margin-bottom: 17px;
-    }
-
-    .section-title {
-      margin-top: 25px;
-      margin-bottom: 12px;
-      font-weight: 800;
-      font-size: 14px;
-      color: #111827;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 13px;
-    }
-
-    .full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      font-size: 12px;
-      color: #6b7280;
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 700;
-    }
-
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d5d9e0;
-      border-radius: 9px;
-      background: white;
-      font-size: 14px;
-      outline: none;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: #2563eb;
-    }
-
-    .checkbox-box {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      border: 1px solid #fecaca;
-      background: #fff7f7;
-      padding: 13px;
-      border-radius: 9px;
-    }
-
-    .checkbox-box input {
-      width: auto;
-    }
-
-    .checkbox-box label {
-      margin: 0;
-      color: #991b1b;
-    }
-
-    .rate-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-
-    .small-btn {
-      border: 0;
-      border-radius: 9px;
-      background: #111827;
-      color: white;
-      padding: 0 15px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-
-    .small-btn:hover {
-      background: #1f2937;
-    }
-
-    .main-btn {
-      margin-top: 18px;
-      width: 100%;
-      padding: 15px;
-      border: 0;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    .main-btn:hover {
-      background: #1d4ed8;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .verdict {
-      padding: 9px 14px;
-      border-radius: 9px;
-      font-size: 13px;
-      font-weight: 900;
-    }
-
-    .neutral {
-      background: #eef2f7;
-      color: #64748b;
-    }
-
-    .excellent {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .buy {
-      background: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .warning {
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .stop {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .hero {
-      margin-top: 18px;
-      background: #0f172a;
-      color: white;
-      border-radius: 13px;
-      padding: 20px;
-    }
-
-    .hero small {
-      color: #94a3b8;
-    }
-
-    .hero-price {
-      font-size: 34px;
-      font-weight: 900;
-      margin-top: 6px;
-    }
-
-    .hero-secondary {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #cbd5e1;
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .metric {
-      background: #f8fafc;
-      border: 1px solid #e8edf3;
-      padding: 14px;
-      border-radius: 10px;
-    }
-
-    .metric small {
-      color: #6b7280;
-      display: block;
-      font-size: 11px;
-      margin-bottom: 6px;
-    }
-
-    .metric strong {
-      font-size: 18px;
-    }
-
-    .recommendation {
-      margin-top: 16px;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 16px;
-      line-height: 1.6;
-      font-size: 14px;
-      color: #374151;
-    }
-
-    .recommendation h3 {
-      color: #111827;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-
-    .warning-box {
-      margin-top: 12px;
-      background: #fff7ed;
-      border: 1px solid #fed7aa;
-      color: #9a3412;
-      padding: 12px;
-      border-radius: 9px;
-      font-size: 13px;
-    }
-
-    .demand {
-      margin-top: 16px;
-    }
-
-    .demand-head {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      margin-bottom: 6px;
-    }
-
-    .bar {
-      height: 8px;
-      background: #e5e7eb;
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    .bar-inner {
-      height: 100%;
-      background: #2563eb;
-      width: 0;
-      transition: .3s;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-
-    th,
-    td {
-      padding: 10px 7px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-    }
-
-    th {
-      color: #6b7280;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-
-    .info {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e40af;
-      padding: 12px;
-      border-radius: 9px;
-      font-size: 12px;
-      line-height: 1.5;
-      margin-bottom: 15px;
-    }
-
-    @media(max-width: 950px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .full {
-        grid-column: auto;
-      }
-    }
-  </style>
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <div class="logo">Auto<span>Bid</span> KG</div>
-  <div class="header-small">HeyDealer → Кыргызстан</div>
+    <div class="logo">BEREKE <span>KG</span></div>
+    <div class="header-status">AutoBid AI · HeyDealer Analyzer</div>
 </header>
 
 <div class="container">
 
-  <div class="page-title">
-    <h1>Глубокий анализ закупки</h1>
-    <p>
-      Расчёт выгодной и максимально безопасной ставки на автомобиль.
-    </p>
-  </div>
+    <div class="title">
+        <h1>Анализ автомобиля</h1>
+        <p>
+            Загрузи скриншот HeyDealer или вставь ссылку.
+            Система должна сама определить автомобиль и рассчитать ставку.
+        </p>
+    </div>
 
-  <div class="layout">
+    <div class="grid">
 
-    <!-- LEFT -->
-    <div>
+        <div class="card">
 
-      <div class="card">
-        <h2>1. Автомобиль</h2>
+            <h2>Автомобиль</h2>
 
-        <div class="form-grid">
+            <label class="upload" for="imageInput">
 
-          <div>
-            <label>Марка</label>
-            <input id="brand" placeholder="Kia">
-          </div>
+                <div id="uploadText">
+                    <div class="upload-icon">📷</div>
+                    <strong>Загрузить скриншот HeyDealer</strong>
+                    <small>Нажми сюда и выбери скриншот</small>
+                </div>
 
-          <div>
-            <label>Модель</label>
-            <input id="model" placeholder="Sorento MQ4">
-          </div>
+                <img id="preview">
 
-          <div>
-            <label>Год</label>
-            <input id="year" type="number" placeholder="2021">
-          </div>
-
-          <div>
-            <label>Пробег, км</label>
-            <input id="mileage" type="number" placeholder="85000">
-          </div>
-
-          <div>
-            <label>Топливо</label>
-            <select id="fuel">
-              <option>Дизель</option>
-              <option>Бензин</option>
-              <option>LPG</option>
-              <option>Гибрид</option>
-              <option>Электро</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Объём двигателя, см³</label>
-            <input id="engine" type="number" placeholder="2151">
-          </div>
-
-          <div>
-            <label>Привод</label>
-            <select id="drive">
-              <option>2WD</option>
-              <option>4WD</option>
-              <option>AWD</option>
-            </select>
-          </div>
-
-          <div>
-            <label>Спрос в Кыргызстане</label>
-            <select id="demand">
-              <option value="10">Очень высокий</option>
-              <option value="8">Высокий</option>
-              <option value="6" selected>Средний</option>
-              <option value="4">Ниже среднего</option>
-              <option value="2">Низкий</option>
-            </select>
-          </div>
-
-        </div>
-
-        <div class="section-title">Состояние автомобиля</div>
-
-        <div class="form-grid">
-
-          <div>
-            <label>Окрашенных деталей</label>
-            <input id="painted" type="number" value="0" min="0">
-          </div>
-
-          <div>
-            <label>Заменённых деталей</label>
-            <input id="replaced" type="number" value="0" min="0">
-          </div>
-
-          <div>
-            <label>Страховых случаев</label>
-            <input id="insuranceCases" type="number" value="0" min="0">
-          </div>
-
-          <div>
-            <label>Сумма страховых выплат, ₩</label>
-            <input id="insuranceAmount" type="number" value="0">
-          </div>
-
-          <div class="full checkbox-box">
-            <input id="structural" type="checkbox">
-            <label for="structural">
-              Есть серьёзное повреждение кузова / силовых элементов / срез
             </label>
-          </div>
 
-          <div class="full">
-            <label>Дополнительная ручная корректировка, ₩</label>
             <input
-              id="manualCorrection"
-              type="number"
-              value="0"
-              placeholder="-500000 или +300000"
+                id="imageInput"
+                type="file"
+                accept="image/*"
             >
-          </div>
 
-        </div>
-      </div>
+            <div class="or">ИЛИ</div>
 
+            <input
+                id="auctionUrl"
+                class="url-input"
+                placeholder="Вставить ссылку HeyDealer"
+            >
 
-      <div class="card">
+            <div class="rate-box">
 
-        <h2>2. Рыночная цена</h2>
+                <div>
+                    <small>Текущий курс</small>
+                    <div class="rate" id="rate">
+                        загрузка...
+                    </div>
+                </div>
 
-        <div class="info">
-          Пример: если реально хороший закуп — 47 млн ₩,
-          а обычная рыночная цена — 50 млн ₩,
-          базовая безопасная точка будет 48,5 млн ₩.
-          Затем система уменьшит её с учётом состояния и экономики сделки.
-        </div>
+                <div style="text-align:right;">
+                    <small>Расходы Корея</small>
+                    <div class="rate">
+                        500 000 ₩
+                    </div>
+                </div>
 
-        <div class="form-grid">
-
-          <div>
-            <label>Очень хорошая цена покупки, ₩</label>
-            <input id="goodPrice" type="number" placeholder="16000000">
-          </div>
-
-          <div>
-            <label>Средняя рыночная цена в Корее, ₩</label>
-            <input id="marketPrice" type="number" placeholder="18000000">
-          </div>
-
-          <div class="full">
-            <label>Текущая ставка HeyDealer, ₩</label>
-            <input id="currentBid" type="number" placeholder="16500000">
-          </div>
-
-        </div>
-      </div>
-
-
-      <div class="card">
-
-        <h2>3. Продажа, курс и расходы</h2>
-
-        <div class="form-grid">
-
-          <div>
-            <label>Ожидаемая цена продажи, USDT / $</label>
-            <input id="saleUSD" type="number" placeholder="18500">
-          </div>
-
-          <div>
-            <label>Курс USDT → KRW</label>
-
-            <div class="rate-row">
-              <input id="exchangeRate" type="number" value="1350">
-              <button class="small-btn" onclick="updateRate()">
-                Обновить
-              </button>
             </div>
-          </div>
 
-          <div>
-            <label>Расходы по Корее, ₩</label>
-            <input id="koreaCosts" type="number" value="500000">
-          </div>
+            <button
+                class="analyze"
+                onclick="analyze()"
+            >
+                АНАЛИЗИРОВАТЬ
+            </button>
 
-          <div>
-            <label>Ремонт / подготовка, ₩</label>
-            <input id="repair" type="number" value="0">
-          </div>
-
-          <div>
-            <label>Непредвиденные расходы, ₩</label>
-            <input id="unexpected" type="number" value="200000">
-          </div>
-
-          <div>
-            <label>Другие расходы, ₩</label>
-            <input id="otherCosts" type="number" value="0">
-          </div>
-
-          <div>
-            <label>Экспорт / логистика, USDT</label>
-            <input id="exportUSD" type="number" value="1400">
-          </div>
-
-          <div>
-            <label>Минимальная прибыль, USDT</label>
-            <input id="targetProfitUSD" type="number" value="1500">
-          </div>
+            <div class="ai-status" id="systemStatus">
+                Курс обновляется автоматически. AI-модуль анализа автомобиля подключим следующим этапом.
+            </div>
 
         </div>
 
-        <button class="main-btn" onclick="calculate()">
-          ПРОАНАЛИЗИРОВАТЬ АВТО
-        </button>
 
-      </div>
+        <div class="card">
+
+            <div class="result-header">
+                <h2 style="margin:0;">Результат</h2>
+
+                <div class="badge" id="verdict">
+                    ОЖИДАНИЕ
+                </div>
+            </div>
+
+            <div class="spinner" id="spinner"></div>
+
+            <div id="results">
+
+                <div class="hero">
+
+                    <small>
+                        АБСОЛЮТНЫЙ МАКСИМУМ СТАВКИ
+                    </small>
+
+                    <div class="hero-price" id="maxBid">
+                        — ₩
+                    </div>
+
+                    <div class="range">
+                        Реальная ставка для победы:
+                        <strong id="winBid">—</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="metrics">
+
+                    <div class="metric">
+                        <small>Желаемая покупка</small>
+                        <strong id="targetBid">—</strong>
+                    </div>
+
+                    <div class="metric">
+                        <small>Рынок Кыргызстана</small>
+                        <strong id="kgMarket">—</strong>
+                    </div>
+
+                    <div class="metric">
+                        <small>Прогноз прибыли</small>
+                        <strong id="profit">—</strong>
+                    </div>
+
+                    <div class="metric">
+                        <small>Спрос</small>
+                        <strong id="demand">— / 10</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="section">
+
+                    <h3>Автомобиль</h3>
+
+                    <p id="carInfo">
+                        После анализа здесь появятся:
+                        модель, год, пробег, двигатель, топливо,
+                        привод и комплектация.
+                    </p>
+
+                </div>
+
+
+                <div class="section">
+
+                    <h3>Состояние</h3>
+
+                    <p id="condition">
+                        AI будет проверять окрасы, замены,
+                        страховые случаи, ДТП и замечания
+                        в диагностике HeyDealer.
+                    </p>
+
+                </div>
+
+
+                <div class="section">
+
+                    <h3>Расчёт расходов</h3>
+
+                    <div class="cost">
+                        <span>Цена автомобиля</span>
+                        <strong id="carPrice">—</strong>
+                    </div>
+
+                    <div class="cost">
+                        <span>Комиссия + доставка + топливо</span>
+                        <strong>500 000 ₩</strong>
+                    </div>
+
+                    <div class="cost">
+                        <span>Итоговая себестоимость</span>
+                        <strong id="totalCost">—</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="section">
+
+                    <h3>Рекомендация AI</h3>
+
+                    <p id="aiAdvice">
+                        Загрузите автомобиль для анализа.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
-
-
-    <!-- RIGHT -->
-    <div>
-
-      <div class="card">
-
-        <div class="result-header">
-          <h2 style="margin:0;">Результат</h2>
-
-          <div id="verdict" class="verdict neutral">
-            НЕТ РАСЧЁТА
-          </div>
-        </div>
-
-
-        <div class="hero">
-
-          <small>МАКСИМАЛЬНАЯ БЕЗОПАСНАЯ СТАВКА</small>
-
-          <div class="hero-price" id="safeMax">
-            — ₩
-          </div>
-
-          <div class="hero-secondary">
-            Желательная цена покупки:
-            <strong id="idealPrice">—</strong>
-          </div>
-
-        </div>
-
-
-        <div class="metrics">
-
-          <div class="metric">
-            <small>Текущая ставка</small>
-            <strong id="resultCurrentBid">—</strong>
-          </div>
-
-          <div class="metric">
-            <small>Рыночная середина</small>
-            <strong id="marketMiddle">—</strong>
-          </div>
-
-          <div class="metric">
-            <small>Полная себестоимость</small>
-            <strong id="totalCost">—</strong>
-          </div>
-
-          <div class="metric">
-            <small>Прогноз прибыли</small>
-            <strong id="profitUSD">—</strong>
-          </div>
-
-          <div class="metric">
-            <small>Маржа</small>
-            <strong id="margin">—</strong>
-          </div>
-
-          <div class="metric">
-            <small>Экономический потолок</small>
-            <strong id="economicCeiling">—</strong>
-          </div>
-
-        </div>
-
-
-        <div class="demand">
-
-          <div class="demand-head">
-            <span>Спрос в Кыргызстане</span>
-            <strong id="demandResult">0/10</strong>
-          </div>
-
-          <div class="bar">
-            <div class="bar-inner" id="demandBar"></div>
-          </div>
-
-        </div>
-
-
-        <div class="recommendation">
-
-          <h3>Рекомендация</h3>
-
-          <div id="recommendation">
-            Заполни данные и нажми «Проанализировать авто».
-          </div>
-
-          <div id="conditionWarning"></div>
-
-        </div>
-
-      </div>
-
-
-      <div class="card">
-
-        <h2>Как сформирована ставка</h2>
-
-        <table>
-          <tbody>
-
-            <tr>
-              <td>Рыночная середина</td>
-              <td id="detailMiddle">—</td>
-            </tr>
-
-            <tr>
-              <td>Коррекция за пробег</td>
-              <td id="detailMileage">—</td>
-            </tr>
-
-            <tr>
-              <td>Коррекция за окрасы</td>
-              <td id="detailPaint">—</td>
-            </tr>
-
-            <tr>
-              <td>Коррекция за замены</td>
-              <td id="detailReplace">—</td>
-            </tr>
-
-            <tr>
-              <td>Страховые случаи</td>
-              <td id="detailInsurance">—</td>
-            </tr>
-
-            <tr>
-              <td>Ручная корректировка</td>
-              <td id="detailManual">—</td>
-            </tr>
-
-            <tr>
-              <td><strong>Рыночный безопасный максимум</strong></td>
-              <td id="detailMarketMax"><strong>—</strong></td>
-            </tr>
-
-          </tbody>
-        </table>
-
-      </div>
-
-
-      <div class="card">
-
-        <h2>Последние расчёты</h2>
-
-        <table>
-
-          <thead>
-            <tr>
-              <th>Авто</th>
-              <th>Ставка</th>
-              <th>Макс.</th>
-              <th>Решение</th>
-            </tr>
-          </thead>
-
-          <tbody id="history"></tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  </div>
 
 </div>
 
 
 <script>
 
-function value(id) {
-  return Number(document.getElementById(id).value) || 0;
-}
+const KOREA_COSTS = 500000;
+
+let currentRate = 0;
 
 
-function krw(number) {
-  return Math.round(number).toLocaleString("ru-RU") + " ₩";
-}
+/* ==========================
+   PREVIEW SCREENSHOT
+========================== */
+
+document
+.getElementById("imageInput")
+.addEventListener("change", function(event){
+
+    const file = event.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        const preview =
+            document.getElementById("preview");
+
+        preview.src = e.target.result;
+        preview.style.display = "block";
+
+        document.getElementById("uploadText")
+            .style.display = "none";
+
+    };
+
+    reader.readAsDataURL(file);
+
+});
 
 
-function usd(number) {
-  return "$" + Math.round(number).toLocaleString("en-US");
-}
+/* ==========================
+   USDT / KRW RATE
+========================== */
 
+async function loadRate(){
 
-function signedKRW(number) {
+    const rateElement =
+        document.getElementById("rate");
 
-  if (number > 0) {
-    return "+" + krw(number);
-  }
+    try{
 
-  if (number < 0) {
-    return "-" + krw(Math.abs(number));
-  }
+        const response = await fetch(
+            "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=krw"
+        );
 
-  return "0 ₩";
-}
+        if(!response.ok)
+            throw new Error();
 
+        const data =
+            await response.json();
 
+        currentRate =
+            Number(data.tether.krw);
 
-/* =========================
-   АВТООБНОВЛЕНИЕ USDT / KRW
-   ========================= */
+        rateElement.innerText =
+            currentRate.toLocaleString("en-US") +
+            " ₩ / USDT";
 
-async function updateRate() {
-
-  const button =
-    event.target;
-
-  const oldText =
-    button.innerText;
-
-  button.innerText = "...";
-
-  try {
-
-    const response =
-      await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=krw"
-      );
-
-    if (!response.ok) {
-      throw new Error("Ошибка API");
     }
 
-    const data =
-      await response.json();
+    catch(error){
 
-    const rate =
-      data.tether.krw;
+        rateElement.innerText =
+            "курс недоступен";
 
-    if (!rate) {
-      throw new Error("Нет курса");
     }
 
-    document.getElementById("exchangeRate").value =
-      Math.round(rate * 100) / 100;
-
-    button.innerText = "Готово";
-
-    setTimeout(() => {
-      button.innerText = oldText;
-    }, 1000);
-
-  }
-
-  catch (error) {
-
-    alert(
-      "Не удалось автоматически получить курс USDT/KRW. Введи курс вручную."
-    );
-
-    button.innerText = oldText;
-
-  }
-
 }
 
 
+loadRate();
 
-/* =========================
-   КОРРЕКЦИЯ ПРОБЕГА
-   ========================= */
 
-function mileageCorrection(mileage, marketMiddle) {
+/* обновляем раз в 5 минут */
 
-  /*
-    Пока это осторожная базовая модель.
-    Позже заменим её реальной статистикой
-    из BEREKE + WhatsApp + HeyDealer.
-  */
+setInterval(
+    loadRate,
+    300000
+);
 
-  if (mileage <= 30000) {
-    return marketMiddle * 0.025;
-  }
 
-  if (mileage <= 60000) {
-    return marketMiddle * 0.01;
-  }
+/* ==========================
+   ANALYSIS
+========================== */
 
-  if (mileage <= 100000) {
-    return 0;
-  }
+async function analyze(){
 
-  if (mileage <= 130000) {
-    return -marketMiddle * 0.025;
-  }
+    const file =
+        document.getElementById("imageInput").files[0];
 
-  if (mileage <= 160000) {
-    return -marketMiddle * 0.05;
-  }
+    const url =
+        document.getElementById("auctionUrl")
+        .value.trim();
 
-  if (mileage <= 200000) {
-    return -marketMiddle * 0.08;
-  }
 
-  return -marketMiddle * 0.12;
-}
+    if(!file && !url){
 
+        alert(
+            "Загрузи скриншот или вставь ссылку HeyDealer."
+        );
 
+        return;
 
-/* =========================
-   ОСНОВНОЙ РАСЧЁТ
-   ========================= */
+    }
 
-function calculate() {
 
-  const brand =
-    document.getElementById("brand").value || "Авто";
+    const spinner =
+        document.getElementById("spinner");
 
-  const model =
-    document.getElementById("model").value || "";
+    spinner.style.display =
+        "block";
 
-  const mileage =
-    value("mileage");
 
-  const painted =
-    value("painted");
+    document.getElementById("verdict")
+        .innerText = "АНАЛИЗ";
 
-  const replaced =
-    value("replaced");
 
-  const insuranceCases =
-    value("insuranceCases");
+    /*
+    =====================================================
+    СЛЕДУЮЩИЙ ЭТАП
 
-  const insuranceAmount =
-    value("insuranceAmount");
+    Здесь мы подключим AI API.
 
-  const manualCorrection =
-    value("manualCorrection");
+    Он получит:
 
-  const structural =
-    document.getElementById("structural").checked;
+    1. скриншот HeyDealer
+    2. ссылку на автомобиль
+    3. курс USDT/KRW
+    4. базу BEREKE
+    5. цены WhatsApp
+    6. рынок Кыргызстана
+    7. фиксированные расходы 500 000 KRW
 
-  const demand =
-    value("demand");
+    И вернёт JSON:
 
+    {
+      car:{...},
+      demand:8.7,
+      targetBid:15000000,
+      winningBid:15700000,
+      maxBid:16300000,
+      kgMarketUSD:18500,
+      profitUSD:2300,
+      condition:"...",
+      advice:"..."
+    }
 
-  const goodPrice =
-    value("goodPrice");
+    =====================================================
+    */
 
-  const marketPrice =
-    value("marketPrice");
 
-  const currentBid =
-    value("currentBid");
+    setTimeout(function(){
 
+        spinner.style.display =
+            "none";
 
-  const saleUSD =
-    value("saleUSD");
 
-  const exchangeRate =
-    value("exchangeRate");
+        document.getElementById("verdict")
+            .innerText = "AI НЕ ПОДКЛЮЧЕН";
 
-  const koreaCosts =
-    value("koreaCosts");
 
-  const repair =
-    value("repair");
+        document.getElementById("systemStatus")
+            .innerHTML =
+            "<strong>Интерфейс готов.</strong> " +
+            "Теперь подключаем AI-сервер, чтобы кнопка сама анализировала скриншот и рынок.";
 
-  const unexpected =
-    value("unexpected");
 
-  const otherCosts =
-    value("otherCosts");
-
-  const exportUSD =
-    value("exportUSD");
-
-  const targetProfitUSD =
-    value("targetProfitUSD");
-
-
-  if (
-    goodPrice <= 0 ||
-    marketPrice <= 0 ||
-    currentBid <= 0 ||
-    saleUSD <= 0 ||
-    exchangeRate <= 0
-  ) {
-
-    alert(
-      "Заполни хорошую цену, среднюю цену рынка, текущую ставку, цену продажи и курс."
-    );
-
-    return;
-
-  }
-
-
-
-  /* =====================
-     1. РЫНОЧНАЯ СЕРЕДИНА
-     ===================== */
-
-  const middle =
-    (goodPrice + marketPrice) / 2;
-
-
-
-  /* =====================
-     2. СОСТОЯНИЕ
-     ===================== */
-
-  const mileageAdj =
-    mileageCorrection(mileage, middle);
-
-
-  /*
-    Окрас — небольшой минус.
-    Замена детали — больший минус.
-  */
-
-  const paintAdj =
-    -(painted * 150000);
-
-  const replaceAdj =
-    -(replaced * 300000);
-
-
-  /*
-    Страховая история:
-    учитываем количество случаев
-    и часть размера выплат.
-  */
-
-  const insuranceAdj =
-    -(insuranceCases * 100000)
-    -
-    Math.min(
-      insuranceAmount * 0.08,
-      middle * 0.08
-    );
-
-
-
-  /* =====================
-     3. РЫНОЧНЫЙ ПОТОЛОК
-     ===================== */
-
-  let marketSafeMax =
-    middle
-    + mileageAdj
-    + paintAdj
-    + replaceAdj
-    + insuranceAdj
-    + manualCorrection;
-
-
-
-  /*
-    Если есть серьёзное структурное
-    повреждение — система ставит
-    дополнительный большой риск.
-  */
-
-  if (structural) {
-
-    marketSafeMax =
-      marketSafeMax * 0.88;
-
-  }
-
-
-
-  /* =====================
-     4. ЭКОНОМИКА
-     ===================== */
-
-  const resaleKRW =
-    saleUSD * exchangeRate;
-
-  const exportKRW =
-    exportUSD * exchangeRate;
-
-  const targetProfitKRW =
-    targetProfitUSD * exchangeRate;
-
-
-  const fixedCosts =
-    koreaCosts
-    + repair
-    + unexpected
-    + otherCosts
-    + exportKRW;
-
-
-  /*
-    Максимальная цена машины,
-    при которой остаётся
-    нужная прибыль.
-  */
-
-  const economicMax =
-    resaleKRW
-    - fixedCosts
-    - targetProfitKRW;
-
-
-
-  /* =====================
-     5. ФИНАЛЬНЫЙ МАКСИМУМ
-     ===================== */
-
-  const safeMax =
-    Math.min(
-      marketSafeMax,
-      economicMax
-    );
-
-
-
-  /* =====================
-     6. ЦЕЛЕВАЯ ДЕШЁВАЯ ПОКУПКА
-     ===================== */
-
-  let idealPrice;
-
-  if (goodPrice < safeMax) {
-
-    idealPrice =
-      goodPrice
-      +
-      (safeMax - goodPrice) * 0.30;
-
-  }
-
-  else {
-
-    idealPrice =
-      safeMax * 0.95;
-
-  }
-
-
-
-  /* =====================
-     7. ФАКТИЧЕСКАЯ ПРИБЫЛЬ
-     ===================== */
-
-  const totalCost =
-    currentBid + fixedCosts;
-
-  const profitKRW =
-    resaleKRW - totalCost;
-
-  const profitDollar =
-    profitKRW / exchangeRate;
-
-  const margin =
-    resaleKRW > 0
-      ? profitKRW / resaleKRW * 100
-      : 0;
-
-
-
-  /* =====================
-     ВЫВОД
-     ===================== */
-
-  document.getElementById("safeMax").innerText =
-    krw(safeMax);
-
-  document.getElementById("idealPrice").innerText =
-    krw(idealPrice);
-
-  document.getElementById("resultCurrentBid").innerText =
-    krw(currentBid);
-
-  document.getElementById("marketMiddle").innerText =
-    krw(middle);
-
-  document.getElementById("totalCost").innerText =
-    krw(totalCost);
-
-  document.getElementById("profitUSD").innerText =
-    usd(profitDollar);
-
-  document.getElementById("margin").innerText =
-    margin.toFixed(1) + "%";
-
-  document.getElementById("economicCeiling").innerText =
-    krw(economicMax);
-
-
-
-  /* =====================
-     ДЕТАЛИ
-     ===================== */
-
-  document.getElementById("detailMiddle").innerText =
-    krw(middle);
-
-  document.getElementById("detailMileage").innerText =
-    signedKRW(mileageAdj);
-
-  document.getElementById("detailPaint").innerText =
-    signedKRW(paintAdj);
-
-  document.getElementById("detailReplace").innerText =
-    signedKRW(replaceAdj);
-
-  document.getElementById("detailInsurance").innerText =
-    signedKRW(insuranceAdj);
-
-  document.getElementById("detailManual").innerText =
-    signedKRW(manualCorrection);
-
-  document.getElementById("detailMarketMax").innerText =
-    krw(marketSafeMax);
-
-
-
-  /* =====================
-     СПРОС
-     ===================== */
-
-  document.getElementById("demandResult").innerText =
-    demand + "/10";
-
-  document.getElementById("demandBar").style.width =
-    (demand * 10) + "%";
-
-
-
-  /* =====================
-     РЕШЕНИЕ
-     ===================== */
-
-  const verdict =
-    document.getElementById("verdict");
-
-  const recommendation =
-    document.getElementById("recommendation");
-
-  const warning =
-    document.getElementById("conditionWarning");
-
-
-  let decision;
-
-
-  if (structural) {
-
-    verdict.className =
-      "verdict stop";
-
-    verdict.innerText =
-      "ВЫСОКИЙ РИСК";
-
-    decision =
-      "РИСК";
-
-    recommendation.innerHTML =
-      "<strong>У автомобиля указано серьёзное повреждение кузова.</strong><br>" +
-      "Для экспортной закупки такая машина требует отдельной проверки. " +
-      "Автоматический расчёт уменьшил допустимую ставку, но без осмотра покупать её не рекомендуется.";
-
-  }
-
-  else if (currentBid <= idealPrice) {
-
-    verdict.className =
-      "verdict excellent";
-
-    verdict.innerText =
-      "ОЧЕНЬ ВЫГОДНО";
-
-    decision =
-      "БРАТЬ";
-
-    recommendation.innerHTML =
-      "<strong>Отличная цена.</strong><br>" +
-      "Текущая ставка находится в выгодной зоне. " +
-      "Расчётный запас до максимума: <strong>" +
-      krw(safeMax - currentBid) +
-      "</strong>.<br><br>" +
-      "Не повышай ставку без необходимости.";
-
-  }
-
-  else if (currentBid <= safeMax * 0.97) {
-
-    verdict.className =
-      "verdict buy";
-
-    verdict.innerText =
-      "МОЖНО БРАТЬ";
-
-    decision =
-      "БРАТЬ";
-
-    recommendation.innerHTML =
-      "<strong>Цена приемлемая.</strong><br>" +
-      "Машина пока находится ниже безопасного потолка. " +
-      "Максимум по текущим данным: <strong>" +
-      krw(safeMax) +
-      "</strong>.";
-
-  }
-
-  else if (currentBid <= safeMax) {
-
-    verdict.className =
-      "verdict warning";
-
-    verdict.innerText =
-      "ТОЛЬКО ДО ЛИМИТА";
-
-    decision =
-      "ЛИМИТ";
-
-    recommendation.innerHTML =
-      "<strong>Очень близко к пределу.</strong><br>" +
-      "Не повышай ставку выше <strong>" +
-      krw(safeMax) +
-      "</strong>.";
-
-  }
-
-  else {
-
-    verdict.className =
-      "verdict stop";
-
-    verdict.innerText =
-      "НЕ БРАТЬ";
-
-    decision =
-      "СТОП";
-
-    recommendation.innerHTML =
-      "<strong>Цена слишком высокая.</strong><br>" +
-      "Текущая ставка превышает безопасный максимум на <strong>" +
-      krw(currentBid - safeMax) +
-      "</strong>.<br><br>" +
-      "По текущей экономике лучше отказаться от машины.";
-
-  }
-
-
-
-  warning.innerHTML =
-
-    "<div class='warning-box'>" +
-
-    "<strong>Важно:</strong> показатель спроса пока отображается отдельно " +
-    "и не разрешает системе переплачивать за машину. " +
-    "Даже популярный автомобиль должен быть куплен по выгодной цене." +
-
-    "</div>";
-
-
-
-  saveHistory(
-    brand + " " + model,
-    currentBid,
-    safeMax,
-    decision
-  );
+    },1000);
 
 }
-
-
-
-/* =========================
-   ИСТОРИЯ
-   ========================= */
-
-function saveHistory(car, bid, max, decision) {
-
-  let history =
-    JSON.parse(
-      localStorage.getItem("autobid_v2") || "[]"
-    );
-
-
-  history.unshift({
-    car,
-    bid,
-    max,
-    decision
-  });
-
-
-  history =
-    history.slice(0, 10);
-
-
-  localStorage.setItem(
-    "autobid_v2",
-    JSON.stringify(history)
-  );
-
-
-  renderHistory();
-
-}
-
-
-
-function renderHistory() {
-
-  const history =
-    JSON.parse(
-      localStorage.getItem("autobid_v2") || "[]"
-    );
-
-
-  const table =
-    document.getElementById("history");
-
-
-  table.innerHTML = "";
-
-
-  history.forEach(item => {
-
-    const row =
-      document.createElement("tr");
-
-
-    row.innerHTML = `
-      <td>${item.car}</td>
-      <td>${krw(item.bid)}</td>
-      <td>${krw(item.max)}</td>
-      <td><strong>${item.decision}</strong></td>
-    `;
-
-
-    table.appendChild(row);
-
-  });
-
-}
-
-
-renderHistory();
-
 </script>
 
 </body>
