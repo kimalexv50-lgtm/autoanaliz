@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>AutoBid KG — Анализ HeyDealer</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f6f9;
+      color: #111827;
+    }
+
+    header {
+      background: #0b1220;
+      color: white;
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .logo span {
+      color: #3b82f6;
+    }
+
+    .status {
+      font-size: 13px;
+      background: #162033;
+      padding: 8px 12px;
+      border-radius: 8px;
+      color: #b8c4d8;
+    }
+
+    .container {
+      max-width: 1450px;
+      margin: auto;
+      padding: 25px;
+    }
+
+    .title {
+      margin-bottom: 20px;
+    }
+
+    .title h1 {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .title p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.05);
+      border: 1px solid #e5e7eb;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d7dce3;
+      border-radius: 9px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #2563eb;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .upload {
+      border: 2px dashed #d4dae4;
+      padding: 22px;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      background: #fafbfc;
+    }
+
+    .upload input {
+      margin-top: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 14px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 18px;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .verdict {
+      padding: 10px 16px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .neutral {
+      background: #eef2f7;
+      color: #64748b;
+    }
+
+    .buy {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .stop {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 16px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #edf0f4;
+    }
+
+    .metric small {
+      display: block;
+      color: #6b7280;
+      font-size: 11px;
+      margin-bottom: 7px;
+    }
+
+    .metric strong {
+      font-size: 20px;
+    }
+
+    .big-result {
+      margin-top: 14px;
+      padding: 18px;
+      border-radius: 12px;
+      background: #0f172a;
+      color: white;
+    }
+
+    .big-result small {
+      color: #94a3b8;
+    }
+
+    .big-result .price {
+      font-size: 32px;
+      font-weight: 900;
+      margin-top: 5px;
+    }
+
+    .analysis {
+      margin-top: 18px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 18px;
+    }
+
+    .analysis h3 {
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .analysis p {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .score-row {
+      margin-top: 15px;
+    }
+
+    .score-name {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: .4s;
+    }
+
+    .history {
+      margin-top: 22px;
+    }
+
+    .history table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history th,
+    .history td {
+      padding: 11px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .history th {
+      color: #6b7280;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    @media(max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Auto<span>Bid</span> KG</div>
+  <div class="status">MVP · Анализ закупки</div>
+</header>
+
+<div class="container">
+
+  <div class="title">
+    <h1>Анализ автомобиля</h1>
+    <p>Расчёт максимальной безопасной ставки на HeyDealer для рынка Кыргызстана.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- ЛЕВАЯ ЧАСТЬ -->
+    <div class="card">
+
+      <h2>1. Данные автомобиля</h2>
+
+      <div class="upload">
+        <strong>Скриншот HeyDealer</strong>
+        <div style="font-size:12px;color:#777;margin-top:5px;">
+          Пока используется только как вложение. AI-распознавание подключим следующим этапом.
+        </div>
+
+        <input type="file" id="screenshot" accept="image/*">
+      </div>
+
+      <div class="form-grid">
+
+        <div>
+          <label>Марка</label>
+          <input id="brand" placeholder="Kia">
+        </div>
+
+        <div>
+          <label>Модель</label>
+          <input id="model" placeholder="Sorento">
+        </div>
+
+        <div>
+          <label>Год</label>
+          <input id="year" type="number" placeholder="2021">
+        </div>
+
+        <div>
+          <label>Пробег, км</label>
+          <input id="mileage" type="number" placeholder="85000">
+        </div>
+
+        <div>
+          <label>Топливо</label>
+          <select id="fuel">
+            <option>Бензин</option>
+            <option>Дизель</option>
+            <option>LPG</option>
+            <option>Гибрид</option>
+            <option>Электро</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Спрос в Кыргызстане</label>
+          <select id="demand">
+            <option value="9">Очень высокий</option>
+            <option value="8">Высокий</option>
+            <option value="6" selected>Средний</option>
+            <option value="4">Низкий</option>
+          </select>
+        </div>
+
+        <div class="full">
+          <label>Текущая ставка HeyDealer, ₩</label>
+          <input id="bid" type="number" placeholder="16000000">
+        </div>
+
+      </div>
+
+      <h2 style="margin-top:28px;">2. Экономика сделки</h2>
+
+      <div class="form-grid">
+
+        <div>
+          <label>Ожидаемая цена продажи в КР, $</label>
+          <input id="saleUSD" type="number" placeholder="18500">
+        </div>
+
+        <div>
+          <label>Курс ₩ за $1</label>
+          <input id="exchangeRate" type="number" value="1400">
+        </div>
+
+        <div>
+          <label>Комиссия HeyDealer, ₩</label>
+          <input id="fee" type="number" value="355000">
+        </div>
+
+        <div>
+          <label>Доставка по Корее, ₩</label>
+          <input id="transport" type="number" value="100000">
+        </div>
+
+        <div>
+          <label>Ремонт / подготовка, ₩</label>
+          <input id="repair" type="number" value="0">
+        </div>
+
+        <div>
+          <label>Другие расходы, ₩</label>
+          <input id="otherCosts" type="number" value="0">
+        </div>
+
+        <div>
+          <label>Логистика / экспорт, $</label>
+          <input id="exportUSD" type="number" value="1400">
+        </div>
+
+        <div>
+          <label>Минимальная прибыль, $</label>
+          <input id="targetProfit" type="number" value="1500">
+        </div>
+
+      </div>
+
+      <button class="btn" onclick="analyzeCar()">
+        Рассчитать ставку
+      </button>
+
+    </div>
+
+    <!-- ПРАВАЯ ЧАСТЬ -->
+    <div>
+
+      <div class="card">
+
+        <div class="result-top">
+          <h2 style="margin:0;">Результат</h2>
+          <div id="verdict" class="verdict neutral">
+            НЕТ РАСЧЁТА
+          </div>
+        </div>
+
+        <div class="big-result">
+          <small>Максимальная безопасная ставка</small>
+          <div class="price" id="maxBid">— ₩</div>
+        </div>
+
+        <div class="metrics" style="margin-top:14px;">
+
+          <div class="metric">
+            <small>Текущая ставка</small>
+            <strong id="currentBidResult">—</strong>
+          </div>
+
+          <div class="metric">
+            <small>Полная себестоимость</small>
+            <strong id="totalCost">—</strong>
+          </div>
+
+          <div class="metric">
+            <small>Прогноз прибыли</small>
+            <strong id="profit">—</strong>
+          </div>
+
+          <div class="metric">
+            <small>Маржа</small>
+            <strong id="margin">—</strong>
+          </div>
+
+        </div>
+
+        <div class="score-row">
+          <div class="score-name">
+            <span>Спрос Кыргызстан</span>
+            <span id="demandText">0/10</span>
+          </div>
+
+          <div class="bar">
+            <div id="demandBar" class="bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="analysis">
+          <h3>Рекомендация системы</h3>
+          <p id="recommendation">
+            Заполни параметры машины и нажми «Рассчитать ставку».
+          </p>
+        </div>
+
+      </div>
+
+      <div class="card history">
+
+        <h2>Последние расчёты</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Машина</th>
+              <th>Ставка</th>
+              <th>Максимум</th>
+              <th>Решение</th>
+            </tr>
+          </thead>
+
+          <tbody id="historyBody">
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+  function moneyKRW(number) {
+    return Math.round(number).toLocaleString("ru-RU") + " ₩";
+  }
+
+  function moneyUSD(number) {
+    return "$" + Math.round(number).toLocaleString("en-US");
+  }
+
+
+  function analyzeCar() {
+
+    const brand = document.getElementById("brand").value || "Авто";
+    const model = document.getElementById("model").value || "";
+
+    const bid =
+      Number(document.getElementById("bid").value) || 0;
+
+    const saleUSD =
+      Number(document.getElementById("saleUSD").value) || 0;
+
+    const exchangeRate =
+      Number(document.getElementById("exchangeRate").value) || 1400;
+
+    const fee =
+      Number(document.getElementById("fee").value) || 0;
+
+    const transport =
+      Number(document.getElementById("transport").value) || 0;
+
+    const repair =
+      Number(document.getElementById("repair").value) || 0;
+
+    const otherCosts =
+      Number(document.getElementById("otherCosts").value) || 0;
+
+    const exportUSD =
+      Number(document.getElementById("exportUSD").value) || 0;
+
+    const targetProfit =
+      Number(document.getElementById("targetProfit").value) || 0;
+
+    const demand =
+      Number(document.getElementById("demand").value);
+
+
+    if (bid <= 0 || saleUSD <= 0) {
+      alert("Укажи текущую ставку и ожидаемую цену продажи.");
+      return;
+    }
+
+
+    const exportKRW =
+      exportUSD * exchangeRate;
+
+    const targetProfitKRW =
+      targetProfit * exchangeRate;
+
+    const resaleKRW =
+      saleUSD * exchangeRate;
+
+
+    const fixedCosts =
+      fee +
+      transport +
+      repair +
+      otherCosts +
+      exportKRW;
+
+
+    const maxBid =
+      resaleKRW -
+      fixedCosts -
+      targetProfitKRW;
+
+
+    const totalCost =
+      bid + fixedCosts;
+
+
+    const profitKRW =
+      resaleKRW - totalCost;
+
+
+    const profitUSD =
+      profitKRW / exchangeRate;
+
+
+    const margin =
+      resaleKRW > 0
+        ? (profitKRW / resaleKRW) * 100
+        : 0;
+
+
+    const difference =
+      maxBid - bid;
+
+
+    document.getElementById("maxBid").innerText =
+      moneyKRW(maxBid);
+
+    document.getElementById("currentBidResult").innerText =
+      moneyKRW(bid);
+
+    document.getElementById("totalCost").innerText =
+      moneyKRW(totalCost);
+
+    document.getElementById("profit").innerText =
+      moneyUSD(profitUSD);
+
+    document.getElementById("margin").innerText =
+      margin.toFixed(1) + "%";
+
+
+    document.getElementById("demandText").innerText =
+      demand + "/10";
+
+    document.getElementById("demandBar").style.width =
+      demand * 10 + "%";
+
+
+    const verdict =
+      document.getElementById("verdict");
+
+    const recommendation =
+      document.getElementById("recommendation");
+
+
+    let decision = "";
+
+
+    if (bid <= maxBid * 0.93) {
+
+      verdict.className = "verdict buy";
+      verdict.innerText = "БРАТЬ";
+
+      decision = "БРАТЬ";
+
+      recommendation.innerHTML =
+        "<strong>Хорошая зона покупки.</strong> " +
+        "Текущая ставка ниже рассчитанного максимума на " +
+        moneyKRW(difference) +
+        ". Прогнозируемая прибыль после указанных расходов: " +
+        moneyUSD(profitUSD) +
+        ".";
+
+    }
+
+    else if (bid <= maxBid) {
+
+      verdict.className = "verdict warning";
+      verdict.innerText = "БРАТЬ ДО ЛИМИТА";
+
+      decision = "ДО ЛИМИТА";
+
+      recommendation.innerHTML =
+        "<strong>Ставка уже близко к пределу.</strong> " +
+        "Можно продолжать торг только до " +
+        moneyKRW(maxBid) +
+        ". Выше этой суммы целевая прибыль становится недостаточной.";
+
+    }
+
+    else {
+
+      verdict.className = "verdict stop";
+      verdict.innerText = "НЕ БРАТЬ";
+
+      decision = "НЕ БРАТЬ";
+
+      recommendation.innerHTML =
+        "<strong>Стоп.</strong> Текущая ставка превышает безопасный максимум на " +
+        moneyKRW(Math.abs(difference)) +
+        ". По заданным параметрам такая закупка не соответствует целевой прибыли.";
+
+    }
+
+
+    addHistory(
+      brand + " " + model,
+      bid,
+      maxBid,
+      decision
+    );
+
+  }
+
+
+  function addHistory(car, bid, maxBid, decision) {
+
+    let history =
+      JSON.parse(localStorage.getItem("autobidHistory") || "[]");
+
+
+    history.unshift({
+      car,
+      bid,
+      maxBid,
+      decision
+    });
+
+
+    history =
+      history.slice(0, 8);
+
+
+    localStorage.setItem(
+      "autobidHistory",
+      JSON.stringify(history)
+    );
+
+
+    renderHistory();
+  }
+
+
+  function renderHistory() {
+
+    const history =
+      JSON.parse(localStorage.getItem("autobidHistory") || "[]");
+
+
+    const body =
+      document.getElementById("historyBody");
+
+
+    body.innerHTML = "";
+
+
+    history.forEach(item => {
+
+      const row =
+        document.createElement("tr");
+
+
+      row.innerHTML = `
+        <td>${item.car}</td>
+        <td>${moneyKRW(item.bid)}</td>
+        <td>${moneyKRW(item.maxBid)}</td>
+        <td><strong>${item.decision}</strong></td>
+      `;
+
+
+      body.appendChild(row);
+
+    });
+
+  }
+
+
+  renderHistory();
+
+</script>
+
+</body>
+</html>
