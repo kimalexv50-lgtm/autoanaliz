@@ -4,318 +4,373 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>BEREKE KG — AutoBid AI</title>
+<title>BEREKE KG — AI Auction Analyzer</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0}
 
 body{
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f4f6f9;
-    color:#111827;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f3f5f8;
+  color:#111827;
 }
 
 header{
-    height:70px;
-    background:#0a0f1c;
-    color:#fff;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0 32px;
+  height:68px;
+  background:#080d18;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 30px;
 }
 
 .logo{
-    font-size:23px;
-    font-weight:900;
+  font-size:23px;
+  font-weight:900;
 }
 
-.logo span{
-    color:#3b82f6;
-}
+.logo span{color:#3b82f6}
 
-.header-status{
-    font-size:12px;
-    color:#94a3b8;
+.topStatus{
+  font-size:12px;
+  color:#94a3b8;
 }
 
 .container{
-    width:min(1200px,94%);
-    margin:35px auto;
-}
-
-.title{
-    margin-bottom:25px;
+  width:min(1320px,94%);
+  margin:28px auto 60px;
 }
 
 .title h1{
-    font-size:30px;
-    margin-bottom:8px;
+  font-size:28px;
+  margin-bottom:7px;
 }
 
 .title p{
-    color:#64748b;
-    line-height:1.5;
+  color:#64748b;
+  line-height:1.5;
 }
 
 .grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:20px;
+  margin-top:22px;
 }
 
 .card{
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:16px;
-    padding:22px;
-    box-shadow:0 3px 12px rgba(0,0,0,.04);
+  background:white;
+  border:1px solid #e5e7eb;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 3px 12px rgba(0,0,0,.04);
+  margin-bottom:16px;
 }
 
 .card h2{
-    font-size:18px;
-    margin-bottom:18px;
+  font-size:17px;
+  margin-bottom:15px;
 }
 
-.upload{
-    border:2px dashed #cbd5e1;
-    border-radius:14px;
-    min-height:210px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:20px;
-    cursor:pointer;
-    background:#f8fafc;
+.help{
+  font-size:12px;
+  color:#64748b;
+  line-height:1.55;
+  margin-bottom:12px;
 }
 
-.upload:hover{
-    border-color:#2563eb;
+.drop{
+  border:2px dashed #cbd5e1;
+  background:#f8fafc;
+  min-height:135px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
+  cursor:pointer;
+  padding:18px;
+  transition:.2s;
 }
 
-.upload-icon{
-    font-size:38px;
-    margin-bottom:10px;
+.drop:hover,
+.drop.active{
+  border-color:#2563eb;
+  background:#eff6ff;
 }
 
-.upload strong{
-    font-size:16px;
+.dropIcon{
+  font-size:30px;
+  margin-bottom:8px;
 }
 
-.upload small{
-    color:#64748b;
-    margin-top:7px;
+.drop strong{font-size:14px}
+
+.drop small{
+  display:block;
+  color:#64748b;
+  margin-top:5px;
+  line-height:1.5;
 }
 
-#preview{
-    max-width:100%;
-    max-height:300px;
-    border-radius:10px;
-    margin-top:15px;
-    display:none;
+input[type=file]{display:none}
+
+.previewGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
 }
 
-input[type=file]{
-    display:none;
+.preview{
+  position:relative;
+  height:100px;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid #e5e7eb;
+  background:#eee;
 }
 
-.or{
-    text-align:center;
-    color:#94a3b8;
-    margin:18px 0;
-    font-size:12px;
+.preview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
-.url-input{
-    width:100%;
-    padding:14px;
-    border-radius:10px;
-    border:1px solid #d1d5db;
-    font-size:14px;
-    outline:none;
+.remove{
+  position:absolute;
+  right:4px;
+  top:4px;
+  border:0;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  cursor:pointer;
 }
 
-.url-input:focus{
-    border-color:#2563eb;
+.url{
+  width:100%;
+  padding:13px;
+  border:1px solid #d1d5db;
+  border-radius:9px;
+  outline:none;
+  font-size:13px;
 }
 
-.rate-box{
-    margin-top:18px;
-    background:#f8fafc;
-    border:1px solid #e5e7eb;
-    padding:14px;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
+.url:focus{border-color:#2563eb}
+
+.infoRow{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:12px;
 }
 
-.rate-box small{
-    display:block;
-    color:#64748b;
-    margin-bottom:4px;
+.infoBox{
+  background:#f8fafc;
+  border:1px solid #e5e7eb;
+  border-radius:9px;
+  padding:12px;
 }
 
-.rate{
-    font-weight:900;
-    font-size:18px;
+.infoBox small{
+  display:block;
+  color:#64748b;
+  margin-bottom:5px;
 }
 
-.analyze{
-    width:100%;
-    border:0;
-    border-radius:11px;
-    background:#2563eb;
-    color:white;
-    padding:16px;
-    margin-top:18px;
-    font-size:16px;
-    font-weight:900;
-    cursor:pointer;
+.infoBox strong{font-size:16px}
+
+.analyzeBtn{
+  width:100%;
+  margin-top:15px;
+  border:0;
+  padding:15px;
+  border-radius:10px;
+  background:#2563eb;
+  color:white;
+  font-size:15px;
+  font-weight:900;
+  cursor:pointer;
 }
 
-.analyze:hover{
-    background:#1d4ed8;
-}
+.analyzeBtn:hover{background:#1d4ed8}
+.analyzeBtn:disabled{background:#94a3b8}
 
-.analyze:disabled{
-    background:#94a3b8;
-    cursor:not-allowed;
-}
-
-.result-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.resultTop{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
 }
 
 .badge{
-    font-weight:900;
-    font-size:12px;
-    padding:9px 13px;
-    border-radius:8px;
-    background:#eef2f7;
-    color:#64748b;
+  font-size:12px;
+  font-weight:900;
+  padding:9px 13px;
+  border-radius:8px;
+  background:#e2e8f0;
+  color:#475569;
+}
+
+.buy{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.limit{
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.stop{
+  background:#fee2e2;
+  color:#991b1b;
 }
 
 .hero{
-    background:#0f172a;
-    color:white;
-    border-radius:14px;
-    padding:21px;
-    margin-top:18px;
+  margin-top:17px;
+  background:#0f172a;
+  border-radius:13px;
+  padding:20px;
+  color:#fff;
 }
 
-.hero small{
-    color:#94a3b8;
+.hero small{color:#94a3b8}
+
+.heroValue{
+  font-size:35px;
+  font-weight:900;
+  margin-top:5px;
 }
 
-.hero-price{
-    font-size:35px;
-    font-weight:900;
-    margin-top:5px;
+.priceStages{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:11px;
 }
 
-.range{
-    margin-top:9px;
-    color:#cbd5e1;
-    font-size:13px;
+.stage{
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#f8fafc;
 }
 
-.metrics{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-    margin-top:12px;
+.stage small{
+  display:block;
+  color:#64748b;
+  margin-bottom:5px;
 }
 
-.metric{
-    background:#f8fafc;
-    border:1px solid #e5e7eb;
-    padding:14px;
-    border-radius:10px;
-}
+.stage strong{font-size:17px}
 
-.metric small{
-    color:#64748b;
-    display:block;
-    font-size:11px;
-    margin-bottom:6px;
-}
-
-.metric strong{
-    font-size:17px;
-}
+.target{border-left:4px solid #22c55e}
+.win{border-left:4px solid #3b82f6}
+.hard{border-left:4px solid #ef4444}
+.market{border-left:4px solid #8b5cf6}
 
 .section{
-    margin-top:18px;
-    padding-top:18px;
-    border-top:1px solid #e5e7eb;
+  margin-top:18px;
+  border-top:1px solid #e5e7eb;
+  padding-top:16px;
 }
 
 .section h3{
-    font-size:14px;
-    margin-bottom:9px;
+  font-size:14px;
+  margin-bottom:9px;
 }
 
 .section p{
-    color:#475569;
-    font-size:13px;
-    line-height:1.6;
+  font-size:13px;
+  line-height:1.6;
+  color:#475569;
 }
 
-.cost{
-    display:flex;
-    justify-content:space-between;
-    padding:9px 0;
-    border-bottom:1px solid #f1f5f9;
-    font-size:13px;
+.row{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  padding:9px 0;
+  border-bottom:1px solid #f1f5f9;
+  font-size:13px;
 }
 
-.ai-status{
-    margin-top:17px;
-    padding:13px;
-    border-radius:10px;
-    background:#eff6ff;
-    border:1px solid #bfdbfe;
-    color:#1e40af;
-    font-size:12px;
-    line-height:1.5;
+.row span:first-child{color:#64748b}
+
+.confidenceWrap{
+  margin-top:12px;
 }
 
-.spinner{
-    display:none;
-    margin:25px auto;
-    width:38px;
-    height:38px;
-    border:4px solid #e5e7eb;
-    border-top-color:#2563eb;
-    border-radius:50%;
-    animation:spin 1s linear infinite;
+.confHead{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+.bar{
+  height:8px;
+  background:#e5e7eb;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.barFill{
+  height:100%;
+  background:#2563eb;
+  width:0%;
+  transition:.3s;
+}
+
+.notice{
+  padding:12px;
+  border-radius:9px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  font-size:12px;
+  line-height:1.55;
+  margin-top:14px;
+}
+
+.aiText{
+  white-space:pre-line;
+}
+
+.loader{
+  display:none;
+  width:36px;
+  height:36px;
+  margin:25px auto;
+  border:4px solid #e5e7eb;
+  border-top-color:#2563eb;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
 }
 
 @keyframes spin{
-    to{transform:rotate(360deg)}
+  to{transform:rotate(360deg)}
 }
 
-@media(max-width:850px){
-    .grid{
-        grid-template-columns:1fr;
-    }
+.pasteStatus{
+  margin-top:10px;
+  padding:8px 10px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-size:11px;
+  border-radius:7px;
+}
 
-    header{
-        padding:0 17px;
-    }
-
-    .metrics{
-        grid-template-columns:1fr;
-    }
+@media(max-width:900px){
+  .grid{grid-template-columns:1fr}
+  .previewGrid{grid-template-columns:repeat(2,1fr)}
+  .priceStages{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -323,387 +378,1403 @@ input[type=file]{
 <body>
 
 <header>
-    <div class="logo">BEREKE <span>KG</span></div>
-    <div class="header-status">AutoBid AI · HeyDealer Analyzer</div>
+  <div class="logo">BEREKE <span>KG</span></div>
+  <div class="topStatus">HeyDealer AI Analyzer</div>
 </header>
 
 <div class="container">
 
-    <div class="title">
-        <h1>Анализ автомобиля</h1>
-        <p>
-            Загрузи скриншот HeyDealer или вставь ссылку.
-            Система должна сама определить автомобиль и рассчитать ставку.
-        </p>
+  <div class="title">
+    <h1>Анализ аукциона</h1>
+    <p>
+      Загрузи текущий автомобиль и, если есть, скриншоты похожих машин.
+      Система сравнит их и рассчитает стратегию ставки.
+    </p>
+  </div>
+
+
+  <div class="grid">
+
+    <!-- LEFT -->
+    <div>
+
+      <div class="card">
+
+        <h2>1. Текущий автомобиль</h2>
+
+        <div class="help">
+          Вставь скриншот HeyDealer через <b>Ctrl+V</b>,
+          перетащи изображение или выбери файл.
+          Можно добавить несколько скриншотов одного автомобиля:
+          основная страница, ДТП, страховая история, диагностика и т.д.
+        </div>
+
+        <label
+          class="drop active"
+          id="currentDrop"
+          for="currentInput"
+          onclick="setPasteTarget('current')"
+        >
+
+          <div class="dropIcon">📷</div>
+          <strong>Текущий лот HeyDealer</strong>
+
+          <small>
+            Нажми / перетащи / Ctrl+V
+          </small>
+
+        </label>
+
+        <input
+          type="file"
+          id="currentInput"
+          multiple
+          accept="image/*"
+        >
+
+        <div
+          class="previewGrid"
+          id="currentPreview"
+        ></div>
+
+        <div class="pasteStatus">
+          Сейчас Ctrl+V добавляет изображение в:
+          <strong id="pasteTargetText">Текущий автомобиль</strong>
+        </div>
+
+        <div style="margin-top:15px">
+
+          <input
+            id="auctionUrl"
+            class="url"
+            value="https://dealer.heydealer.com/cars/yJ2jYMjy/"
+            placeholder="Ссылка на HeyDealer"
+          >
+
+        </div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h2>2. Аналоги / предыдущие сделки</h2>
+
+        <div class="help">
+          Сюда вставляй скриншоты похожих машин:
+          тот же кузов, двигатель, год и близкий пробег.
+          Например, список прошлых ставок других дилеров,
+          который ты мне сейчас показал.
+        </div>
+
+        <label
+          class="drop"
+          id="analogDrop"
+          for="analogInput"
+          onclick="setPasteTarget('analogs')"
+        >
+
+          <div class="dropIcon">📊</div>
+
+          <strong>
+            Добавить аналоги
+          </strong>
+
+          <small>
+            Можно сразу несколько изображений
+          </small>
+
+        </label>
+
+        <input
+          type="file"
+          id="analogInput"
+          multiple
+          accept="image/*"
+        >
+
+        <div
+          class="previewGrid"
+          id="analogPreview"
+        ></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <h2>3. Автоматические данные</h2>
+
+        <div class="infoRow">
+
+          <div class="infoBox">
+            <small>USDT → KRW</small>
+            <strong id="usdtRate">загрузка...</strong>
+          </div>
+
+          <div class="infoBox">
+            <small>Расходы по Корее</small>
+            <strong>500 000 ₩</strong>
+          </div>
+
+        </div>
+
+        <div class="infoRow">
+
+          <div class="infoBox">
+            <small>Скриншотов текущего авто</small>
+            <strong id="currentCount">0</strong>
+          </div>
+
+          <div class="infoBox">
+            <small>Скриншотов аналогов</small>
+            <strong id="analogCount">0</strong>
+          </div>
+
+        </div>
+
+        <button
+          class="analyzeBtn"
+          id="analyzeBtn"
+          onclick="analyzeCar()"
+        >
+          ПРОАНАЛИЗИРОВАТЬ
+        </button>
+
+      </div>
+
     </div>
 
-    <div class="grid">
 
-        <div class="card">
+    <!-- RIGHT -->
+    <div>
 
-            <h2>Автомобиль</h2>
+      <div class="card">
 
-            <label class="upload" for="imageInput">
+        <div class="resultTop">
 
-                <div id="uploadText">
-                    <div class="upload-icon">📷</div>
-                    <strong>Загрузить скриншот HeyDealer</strong>
-                    <small>Нажми сюда и выбери скриншот</small>
-                </div>
+          <h2 style="margin:0">
+            Решение
+          </h2>
 
-                <img id="preview">
-
-            </label>
-
-            <input
-                id="imageInput"
-                type="file"
-                accept="image/*"
-            >
-
-            <div class="or">ИЛИ</div>
-
-            <input
-                id="auctionUrl"
-                class="url-input"
-                placeholder="Вставить ссылку HeyDealer"
-            >
-
-            <div class="rate-box">
-
-                <div>
-                    <small>Текущий курс</small>
-                    <div class="rate" id="rate">
-                        загрузка...
-                    </div>
-                </div>
-
-                <div style="text-align:right;">
-                    <small>Расходы Корея</small>
-                    <div class="rate">
-                        500 000 ₩
-                    </div>
-                </div>
-
-            </div>
-
-            <button
-                class="analyze"
-                onclick="analyze()"
-            >
-                АНАЛИЗИРОВАТЬ
-            </button>
-
-            <div class="ai-status" id="systemStatus">
-                Курс обновляется автоматически. AI-модуль анализа автомобиля подключим следующим этапом.
-            </div>
+          <div
+            id="verdict"
+            class="badge"
+          >
+            ОЖИДАНИЕ
+          </div>
 
         </div>
 
 
-        <div class="card">
+        <div
+          class="loader"
+          id="loader"
+        ></div>
 
-            <div class="result-header">
-                <h2 style="margin:0;">Результат</h2>
 
-                <div class="badge" id="verdict">
-                    ОЖИДАНИЕ
-                </div>
+        <div id="resultContent">
+
+          <div class="hero">
+
+            <small>
+              АБСОЛЮТНЫЙ СТОП
+            </small>
+
+            <div
+              class="heroValue"
+              id="hardStop"
+            >
+              — ₩
             </div>
 
-            <div class="spinner" id="spinner"></div>
+            <div
+              style="font-size:12px;color:#cbd5e1;margin-top:7px"
+            >
+              Выше этой суммы ставку не поднимать.
+            </div>
 
-            <div id="results">
-
-                <div class="hero">
-
-                    <small>
-                        АБСОЛЮТНЫЙ МАКСИМУМ СТАВКИ
-                    </small>
-
-                    <div class="hero-price" id="maxBid">
-                        — ₩
-                    </div>
-
-                    <div class="range">
-                        Реальная ставка для победы:
-                        <strong id="winBid">—</strong>
-                    </div>
-
-                </div>
+          </div>
 
 
-                <div class="metrics">
+          <div class="priceStages">
 
-                    <div class="metric">
-                        <small>Желаемая покупка</small>
-                        <strong id="targetBid">—</strong>
-                    </div>
+            <div class="stage target">
 
-                    <div class="metric">
-                        <small>Рынок Кыргызстана</small>
-                        <strong id="kgMarket">—</strong>
-                    </div>
+              <small>
+                🎯 Цель — купить дёшево
+              </small>
 
-                    <div class="metric">
-                        <small>Прогноз прибыли</small>
-                        <strong id="profit">—</strong>
-                    </div>
-
-                    <div class="metric">
-                        <small>Спрос</small>
-                        <strong id="demand">— / 10</strong>
-                    </div>
-
-                </div>
-
-
-                <div class="section">
-
-                    <h3>Автомобиль</h3>
-
-                    <p id="carInfo">
-                        После анализа здесь появятся:
-                        модель, год, пробег, двигатель, топливо,
-                        привод и комплектация.
-                    </p>
-
-                </div>
-
-
-                <div class="section">
-
-                    <h3>Состояние</h3>
-
-                    <p id="condition">
-                        AI будет проверять окрасы, замены,
-                        страховые случаи, ДТП и замечания
-                        в диагностике HeyDealer.
-                    </p>
-
-                </div>
-
-
-                <div class="section">
-
-                    <h3>Расчёт расходов</h3>
-
-                    <div class="cost">
-                        <span>Цена автомобиля</span>
-                        <strong id="carPrice">—</strong>
-                    </div>
-
-                    <div class="cost">
-                        <span>Комиссия + доставка + топливо</span>
-                        <strong>500 000 ₩</strong>
-                    </div>
-
-                    <div class="cost">
-                        <span>Итоговая себестоимость</span>
-                        <strong id="totalCost">—</strong>
-                    </div>
-
-                </div>
-
-
-                <div class="section">
-
-                    <h3>Рекомендация AI</h3>
-
-                    <p id="aiAdvice">
-                        Загрузите автомобиль для анализа.
-                    </p>
-
-                </div>
+              <strong id="targetBid">
+                —
+              </strong>
 
             </div>
+
+
+            <div class="stage win">
+
+              <small>
+                ⚡ Реальная ставка для победы
+              </small>
+
+              <strong id="winningBid">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="stage market">
+
+              <small>
+                🇰🇬 Рынок Кыргызстана
+              </small>
+
+              <strong id="kgPrice">
+                —
+              </strong>
+
+            </div>
+
+
+            <div class="stage hard">
+
+              <small>
+                💰 Прогноз прибыли
+              </small>
+
+              <strong id="profit">
+                —
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="section">
+
+            <h3>Распознано AI</h3>
+
+            <div class="row">
+              <span>Автомобиль</span>
+              <strong id="carName">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Год</span>
+              <strong id="carYear">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Пробег</span>
+              <strong id="mileage">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Топливо / двигатель</span>
+              <strong id="engine">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Привод</span>
+              <strong id="drive">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Текущая ставка</span>
+              <strong id="currentBid">—</strong>
+            </div>
+
+          </div>
+
+
+          <div class="section">
+
+            <h3>Состояние / риски</h3>
+
+            <p
+              id="condition"
+              class="aiText"
+            >
+              Данных пока нет.
+            </p>
+
+          </div>
+
+
+          <div class="section">
+
+            <h3>Рынок и спрос</h3>
+
+            <div class="row">
+              <span>Спрос Кыргызстан</span>
+              <strong id="demand">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Средний аналог в Корее</span>
+              <strong id="koreaMarket">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Выигрышная вероятность</span>
+              <strong id="winProbability">—</strong>
+            </div>
+
+          </div>
+
+
+          <div class="section">
+
+            <h3>Экономика</h3>
+
+            <div class="row">
+              <span>Цена автомобиля</span>
+              <strong id="buyPrice">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Комиссия + доставка + топливо</span>
+              <strong>500 000 ₩</strong>
+            </div>
+
+            <div class="row">
+              <span>Полная себестоимость</span>
+              <strong id="allInCost">—</strong>
+            </div>
+
+            <div class="row">
+              <span>Маржа</span>
+              <strong id="margin">—</strong>
+            </div>
+
+          </div>
+
+
+          <div class="section">
+
+            <h3>Почему такая ставка</h3>
+
+            <p
+              id="reasoning"
+              class="aiText"
+            >
+              После анализа система объяснит,
+              какие аналоги использовала,
+              какие дефекты снизили цену
+              и где находится реальный конкурентный диапазон.
+            </p>
+
+          </div>
+
+
+          <div class="confidenceWrap">
+
+            <div class="confHead">
+              <span>Уверенность AI</span>
+              <strong id="confidenceText">0%</strong>
+            </div>
+
+            <div class="bar">
+              <div
+                class="barFill"
+                id="confidenceBar"
+              ></div>
+            </div>
+
+          </div>
+
+
+          <div
+            class="notice"
+            id="humanNotice"
+          >
+            Финальная ставка остаётся за дилером.
+            Если уверенность AI низкая или есть серьёзное ДТП,
+            система должна показать это отдельно,
+            а не делать вид, что цена точная.
+          </div>
 
         </div>
 
+      </div>
+
     </div>
+
+  </div>
 
 </div>
 
 
 <script>
 
-const KOREA_COSTS = 500000;
+/*
+====================================================
+ВАЖНО
 
-let currentRate = 0;
+GitHub Pages = только интерфейс.
+
+Секретный ключ AI нельзя хранить здесь.
+
+На следующем этапе мы создадим бесплатный
+Cloudflare Worker и вставим его адрес сюда.
+====================================================
+*/
+
+const AI_ENDPOINT =
+  "PASTE_WORKER_URL_HERE";
+
+const KOREA_FIXED_COST = 500000;
+
+let usdtKrw = 0;
+
+let currentFiles = [];
+let analogFiles = [];
+
+let pasteTarget = "current";
 
 
-/* ==========================
-   PREVIEW SCREENSHOT
-========================== */
+/* ===============================
+   PASTE TARGET
+================================ */
+
+function setPasteTarget(target){
+
+  pasteTarget = target;
+
+  document
+    .getElementById("currentDrop")
+    .classList.toggle(
+      "active",
+      target === "current"
+    );
+
+  document
+    .getElementById("analogDrop")
+    .classList.toggle(
+      "active",
+      target === "analogs"
+    );
+
+  document
+    .getElementById("pasteTargetText")
+    .innerText =
+      target === "current"
+      ? "Текущий автомобиль"
+      : "Аналоги";
+
+}
+
+
+/* ===============================
+   CTRL + V SCREENSHOT
+================================ */
+
+window.addEventListener(
+  "paste",
+  function(event){
+
+    const items =
+      event.clipboardData &&
+      event.clipboardData.items;
+
+    if(!items) return;
+
+    const files = [];
+
+    for(const item of items){
+
+      if(
+        item.kind === "file" &&
+        item.type.startsWith("image/")
+      ){
+
+        const file =
+          item.getAsFile();
+
+        if(file){
+          files.push(file);
+        }
+
+      }
+
+    }
+
+    if(!files.length) return;
+
+    event.preventDefault();
+
+    addFiles(
+      pasteTarget,
+      files
+    );
+
+  }
+);
+
+
+/* ===============================
+   FILE INPUTS
+================================ */
 
 document
-.getElementById("imageInput")
-.addEventListener("change", function(event){
-
-    const file = event.target.files[0];
-
-    if(!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e){
-
-        const preview =
-            document.getElementById("preview");
-
-        preview.src = e.target.result;
-        preview.style.display = "block";
-
-        document.getElementById("uploadText")
-            .style.display = "none";
-
-    };
-
-    reader.readAsDataURL(file);
-
-});
+.getElementById("currentInput")
+.addEventListener(
+  "change",
+  e => {
+    addFiles(
+      "current",
+      [...e.target.files]
+    );
+    e.target.value = "";
+  }
+);
 
 
-/* ==========================
-   USDT / KRW RATE
-========================== */
+document
+.getElementById("analogInput")
+.addEventListener(
+  "change",
+  e => {
+    addFiles(
+      "analogs",
+      [...e.target.files]
+    );
+    e.target.value = "";
+  }
+);
+
+
+/* ===============================
+   DRAG DROP
+================================ */
+
+setupDrop(
+  "currentDrop",
+  "current"
+);
+
+setupDrop(
+  "analogDrop",
+  "analogs"
+);
+
+
+function setupDrop(id,target){
+
+  const element =
+    document.getElementById(id);
+
+  element.addEventListener(
+    "dragover",
+    e => {
+      e.preventDefault();
+      element.classList.add("active");
+    }
+  );
+
+  element.addEventListener(
+    "dragleave",
+    () => {
+      if(pasteTarget !== target){
+        element.classList.remove("active");
+      }
+    }
+  );
+
+  element.addEventListener(
+    "drop",
+    e => {
+
+      e.preventDefault();
+
+      setPasteTarget(target);
+
+      const files =
+        [...e.dataTransfer.files]
+        .filter(
+          f =>
+          f.type.startsWith("image/")
+        );
+
+      addFiles(
+        target,
+        files
+      );
+
+    }
+  );
+
+}
+
+
+/* ===============================
+   ADD FILES
+================================ */
+
+function addFiles(target,files){
+
+  if(target === "current"){
+
+    currentFiles.push(...files);
+
+  }else{
+
+    analogFiles.push(...files);
+
+  }
+
+  renderPreviews();
+}
+
+
+/* ===============================
+   REMOVE FILE
+================================ */
+
+function removeFile(target,index){
+
+  if(target === "current"){
+
+    currentFiles.splice(
+      index,
+      1
+    );
+
+  }else{
+
+    analogFiles.splice(
+      index,
+      1
+    );
+
+  }
+
+  renderPreviews();
+
+}
+
+
+/* ===============================
+   PREVIEWS
+================================ */
+
+function renderPreviews(){
+
+  renderList(
+    "currentPreview",
+    currentFiles,
+    "current"
+  );
+
+  renderList(
+    "analogPreview",
+    analogFiles,
+    "analogs"
+  );
+
+  document
+    .getElementById("currentCount")
+    .innerText =
+      currentFiles.length;
+
+  document
+    .getElementById("analogCount")
+    .innerText =
+      analogFiles.length;
+
+}
+
+
+function renderList(
+  elementId,
+  files,
+  target
+){
+
+  const container =
+    document.getElementById(elementId);
+
+  container.innerHTML = "";
+
+  files.forEach(
+    (file,index) => {
+
+      const url =
+        URL.createObjectURL(file);
+
+      const box =
+        document.createElement("div");
+
+      box.className =
+        "preview";
+
+      box.innerHTML = `
+        <img src="${url}">
+        <button
+          class="remove"
+          onclick="event.preventDefault();removeFile('${target}',${index})"
+        >
+          ×
+        </button>
+      `;
+
+      container.appendChild(box);
+
+    }
+  );
+
+}
+
+
+/* ===============================
+   USDT KRW
+================================ */
 
 async function loadRate(){
 
-    const rateElement =
-        document.getElementById("rate");
+  const output =
+    document.getElementById(
+      "usdtRate"
+    );
 
-    try{
+  try{
 
-        const response = await fetch(
-            "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=krw"
-        );
+    const response =
+      await fetch(
+        "https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=krw"
+      );
 
-        if(!response.ok)
-            throw new Error();
+    const data =
+      await response.json();
 
-        const data =
-            await response.json();
+    usdtKrw =
+      Number(
+        data?.tether?.krw
+      );
 
-        currentRate =
-            Number(data.tether.krw);
+    if(!usdtKrw){
+      throw new Error();
+    }
 
-        rateElement.innerText =
-            currentRate.toLocaleString("en-US") +
-            " ₩ / USDT";
+    localStorage.setItem(
+      "lastUsdtKrw",
+      usdtKrw
+    );
+
+    output.innerText =
+      usdtKrw.toLocaleString(
+        "en-US"
+      ) +
+      " ₩";
+
+  }
+
+  catch(error){
+
+    const backup =
+      Number(
+        localStorage.getItem(
+          "lastUsdtKrw"
+        )
+      );
+
+    if(backup){
+
+      usdtKrw =
+        backup;
+
+      output.innerText =
+        backup.toLocaleString(
+          "en-US"
+        ) +
+        " ₩*";
+
+    }else{
+
+      output.innerText =
+        "недоступен";
 
     }
 
-    catch(error){
-
-        rateElement.innerText =
-            "курс недоступен";
-
-    }
+  }
 
 }
 
 
 loadRate();
 
-
-/* обновляем раз в 5 минут */
-
 setInterval(
-    loadRate,
-    300000
+  loadRate,
+  300000
 );
 
 
-/* ==========================
-   ANALYSIS
-========================== */
+/* ===============================
+   ANALYZE
+================================ */
 
-async function analyze(){
+async function analyzeCar(){
 
-    const file =
-        document.getElementById("imageInput").files[0];
+  const url =
+    document
+    .getElementById(
+      "auctionUrl"
+    )
+    .value
+    .trim();
 
-    const url =
-        document.getElementById("auctionUrl")
-        .value.trim();
+
+  if(
+    currentFiles.length === 0 &&
+    !url
+  ){
+
+    alert(
+      "Добавь хотя бы один скриншот текущего автомобиля."
+    );
+
+    return;
+
+  }
 
 
-    if(!file && !url){
+  /*
+  Пока backend ещё не создан.
+  Не притворяемся, что AI работает.
+  */
 
-        alert(
-            "Загрузи скриншот или вставь ссылку HeyDealer."
+  if(
+    AI_ENDPOINT ===
+    "PASTE_WORKER_URL_HERE"
+  ){
+
+    alert(
+      "Интерфейс готов. Теперь нужно подключить AI Worker. Это следующий шаг."
+    );
+
+    return;
+
+  }
+
+
+  setLoading(true);
+
+
+  try{
+
+    const data =
+      new FormData();
+
+
+    currentFiles.forEach(
+      (file,index) => {
+
+        data.append(
+          "current_images",
+          file,
+          "current_" +
+          index +
+          ".png"
         );
 
-        return;
+      }
+    );
+
+
+    analogFiles.forEach(
+      (file,index) => {
+
+        data.append(
+          "analog_images",
+          file,
+          "analog_" +
+          index +
+          ".png"
+        );
+
+      }
+    );
+
+
+    data.append(
+      "auction_url",
+      url
+    );
+
+    data.append(
+      "usdt_krw",
+      usdtKrw
+    );
+
+    data.append(
+      "korea_fixed_cost",
+      KOREA_FIXED_COST
+    );
+
+
+    const response =
+      await fetch(
+        AI_ENDPOINT,
+        {
+          method:"POST",
+          body:data
+        }
+      );
+
+
+    if(!response.ok){
+
+      const text =
+        await response.text();
+
+      throw new Error(
+        text ||
+        "Server error"
+      );
 
     }
 
 
-    const spinner =
-        document.getElementById("spinner");
-
-    spinner.style.display =
-        "block";
+    const result =
+      await response.json();
 
 
-    document.getElementById("verdict")
-        .innerText = "АНАЛИЗ";
+    renderResult(result);
 
 
-    /*
-    =====================================================
-    СЛЕДУЮЩИЙ ЭТАП
+  }
 
-    Здесь мы подключим AI API.
+  catch(error){
 
-    Он получит:
+    console.error(error);
 
-    1. скриншот HeyDealer
-    2. ссылку на автомобиль
-    3. курс USDT/KRW
-    4. базу BEREKE
-    5. цены WhatsApp
-    6. рынок Кыргызстана
-    7. фиксированные расходы 500 000 KRW
+    alert(
+      "Ошибка анализа: " +
+      error.message
+    );
 
-    И вернёт JSON:
+  }
 
-    {
-      car:{...},
-      demand:8.7,
-      targetBid:15000000,
-      winningBid:15700000,
-      maxBid:16300000,
-      kgMarketUSD:18500,
-      profitUSD:2300,
-      condition:"...",
-      advice:"..."
-    }
+  finally{
 
-    =====================================================
-    */
+    setLoading(false);
 
-
-    setTimeout(function(){
-
-        spinner.style.display =
-            "none";
-
-
-        document.getElementById("verdict")
-            .innerText = "AI НЕ ПОДКЛЮЧЕН";
-
-
-        document.getElementById("systemStatus")
-            .innerHTML =
-            "<strong>Интерфейс готов.</strong> " +
-            "Теперь подключаем AI-сервер, чтобы кнопка сама анализировала скриншот и рынок.";
-
-
-    },1000);
+  }
 
 }
+
+
+/* ===============================
+   LOADING
+================================ */
+
+function setLoading(status){
+
+  document
+    .getElementById("loader")
+    .style.display =
+      status
+      ? "block"
+      : "none";
+
+  document
+    .getElementById("analyzeBtn")
+    .disabled =
+      status;
+
+  document
+    .getElementById("verdict")
+    .innerText =
+      status
+      ? "АНАЛИЗ..."
+      : document
+        .getElementById("verdict")
+        .innerText;
+
+}
+
+
+/* ===============================
+   FORMATTING
+================================ */
+
+function krw(value){
+
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return "—";
+  }
+
+  return (
+    Math.round(value)
+      .toLocaleString("ru-RU")
+    +
+    " ₩"
+  );
+
+}
+
+
+function usdt(value){
+
+  if(
+    value === null ||
+    value === undefined
+  ){
+    return "—";
+  }
+
+  return (
+    "$" +
+    Math.round(value)
+      .toLocaleString("en-US")
+  );
+
+}
+
+
+/* ===============================
+   RENDER AI RESULT
+================================ */
+
+function renderResult(data){
+
+  /*
+  Backend будет возвращать примерно:
+
+  {
+    verdict:"BUY",
+    confidence:0.88,
+
+    car:{
+      name:"Hyundai Avante AD Smart",
+      year:"2020/03",
+      mileage_km:50321,
+      engine:"1.6 Gasoline",
+      drive:"2WD",
+      current_bid_krw:8880000
+    },
+
+    bid:{
+      target_krw:9000000,
+      winning_min_krw:9500000,
+      winning_max_krw:10000000,
+      hard_stop_krw:10400000,
+      win_probability:74
+    },
+
+    market:{
+      korea_median_krw:10300000,
+      kg_price_usdt:9500,
+      demand_score:8.1
+    },
+
+    economics:{
+      buy_price_krw:9800000,
+      all_in_cost_krw:10300000,
+      profit_usdt:1800,
+      margin_percent:17
+    },
+
+    condition:"...",
+    reasoning:"..."
+  }
+  */
+
+
+  const verdict =
+    document.getElementById(
+      "verdict"
+    );
+
+
+  if(data.verdict === "BUY"){
+
+    verdict.className =
+      "badge buy";
+
+    verdict.innerText =
+      "БРАТЬ";
+
+  }
+
+  else if(
+    data.verdict === "LIMIT"
+  ){
+
+    verdict.className =
+      "badge limit";
+
+    verdict.innerText =
+      "ТОЛЬКО ДО ЛИМИТА";
+
+  }
+
+  else{
+
+    verdict.className =
+      "badge stop";
+
+    verdict.innerText =
+      "НЕ БРАТЬ";
+
+  }
+
+
+  document
+    .getElementById("hardStop")
+    .innerText =
+      krw(
+        data.bid?.hard_stop_krw
+      );
+
+
+  const min =
+    data.bid?.winning_min_krw;
+
+  const max =
+    data.bid?.winning_max_krw;
+
+
+  document
+    .getElementById("winningBid")
+    .innerText =
+      min && max
+      ?
+      krw(min) +
+      " – " +
+      krw(max)
+      :
+      "—";
+
+
+  document
+    .getElementById("targetBid")
+    .innerText =
+      krw(
+        data.bid?.target_krw
+      );
+
+
+  document
+    .getElementById("kgPrice")
+    .innerText =
+      usdt(
+        data.market?.kg_price_usdt
+      );
+
+
+  document
+    .getElementById("profit")
+    .innerText =
+      usdt(
+        data.economics
+        ?.profit_usdt
+      );
+
+
+  document
+    .getElementById("carName")
+    .innerText =
+      data.car?.name || "—";
+
+
+  document
+    .getElementById("carYear")
+    .innerText =
+      data.car?.year || "—";
+
+
+  document
+    .getElementById("mileage")
+    .innerText =
+      data.car?.mileage_km
+      ?
+      Number(
+        data.car.mileage_km
+      ).toLocaleString("ru-RU")
+      +
+      " км"
+      :
+      "—";
+
+
+  document
+    .getElementById("engine")
+    .innerText =
+      data.car?.engine ||
+      "—";
+
+
+  document
+    .getElementById("drive")
+    .innerText =
+      data.car?.drive ||
+      "—";
+
+
+  document
+    .getElementById("currentBid")
+    .innerText =
+      krw(
+        data.car
+        ?.current_bid_krw
+      );
+
+
+  document
+    .getElementById("condition")
+    .innerText =
+      data.condition ||
+      "Нет данных";
+
+
+  document
+    .getElementById("demand")
+    .innerText =
+      data.market
+        ?.demand_score
+      ?
+      data.market
+        .demand_score
+        .toFixed(1)
+      +
+      " / 10"
+      :
+      "—";
+
+
+  document
+    .getElementById("koreaMarket")
+    .innerText =
+      krw(
+        data.market
+        ?.korea_median_krw
+      );
+
+
+  document
+    .getElementById("winProbability")
+    .innerText =
+      data.bid
+        ?.win_probability
+      !== undefined
+      ?
+      data.bid
+        .win_probability
+      +
+      "%"
+      :
+      "—";
+
+
+  document
+    .getElementById("buyPrice")
+    .innerText =
+      krw(
+        data.economics
+        ?.buy_price_krw
+      );
+
+
+  document
+    .getElementById("allInCost")
+    .innerText =
+      krw(
+        data.economics
+        ?.all_in_cost_krw
+      );
+
+
+  document
+    .getElementById("margin")
+    .innerText =
+      data.economics
+        ?.margin_percent
+      !== undefined
+      ?
+      data.economics
+        .margin_percent
+        .toFixed(1)
+      +
+      "%"
+      :
+      "—";
+
+
+  document
+    .getElementById("reasoning")
+    .innerText =
+      data.reasoning ||
+      "Нет объяснения";
+
+
+  const confidence =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          data.confidence || 0
+        ) * 100
+      )
+    );
+
+
+  document
+    .getElementById(
+      "confidenceText"
+    )
+    .innerText =
+      Math.round(
+        confidence
+      )
+      +
+      "%";
+
+
+  document
+    .getElementById(
+      "confidenceBar"
+    )
+    .style.width =
+      confidence
+      +
+      "%";
+
+
+  if(confidence < 70){
+
+    document
+      .getElementById(
+        "humanNotice"
+      )
+      .innerHTML =
+      "<strong>Нужна ручная проверка.</strong> " +
+      "AI недостаточно уверен в данных. " +
+      "Не используй максимальную ставку без проверки.";
+
+  }
+
+  else{
+
+    document
+      .getElementById(
+        "humanNotice"
+      )
+      .innerHTML =
+      "<strong>AI уверен в расчёте, но окончательное решение за дилером.</strong> " +
+      "Абсолютный стоп нельзя превышать только потому, что автомобиль популярный.";
+
+  }
+
+}
+
 </script>
 
 </body>
